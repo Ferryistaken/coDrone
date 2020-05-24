@@ -5,22 +5,22 @@ import sys, tty, termios
 
 drone = CoDrone.CoDrone()
 
-power = 20
-duration = 1
+power = 30
+duration = 0.5
 
 
 def main():
     print("Drone object created")
     print("Pairing Drone")
-    pairStatus = drone.pair(drone.Nearest)
-    if pairStatus == False:
-        raise RuntimeError("Couldn't pair drone")
-    elif pairStatus == True:
+    if drone.pair() == True:
         print("Drone Paired")
-        drone.calibrate()
-        print("Drone calibrated")
-        cmdcontrol()
-        drone.close()
+    else:
+        raise RuntimeError("Couldn't pair drone")
+    #drone.calibrate()
+    #print("Drone calibrated")
+    cmdcontrol()
+    drone.close()
+
 
 def cmdnull():
     print("Command not implemented yet\r")
@@ -41,8 +41,12 @@ def cmdemergency():
     drone.emergency_stop()
 
 def cmdbattery():
-    print("Battery Level: " + drone.get_battery_percentage())
-    print("Battery Voltage: " + drone.get_battery_voltage())
+    print("Battery Level: " + str(drone.get_battery_percentage()))
+    print("Battery Voltage: " + str(drone.get_battery_voltage()))
+
+def cmdcalibrate():
+    drone.calibrate()
+    print("Drone Calibrated")
 
 
 def cmdleft():
@@ -72,6 +76,7 @@ def cmddown():
 def cmdforward():
     print("Drone going forward\r");
     drone.set_pitch(power)
+    drone.move(duration)
 
 def cmdbackward():
     print("Drone going back\r");
@@ -144,7 +149,8 @@ switcher = {
     'g': cmdland,
     ' ': cmdemergency,
     'b': cmdbattery,
-    'c': cmdnull,
+    'c': cmdcalibrate,
+    'x': cmdnull,
     '+': cmdpowerincr,
     '-': cmdpowerdecr,
     ',': cmddurationdecr,
@@ -158,7 +164,7 @@ def cmdcontrol():
 
 
     ch=sys.stdin.read(1)
-    while( ch != 'c'):
+    while( ch != 'x'):
         cmd = switcher.get(ch,cmdhelp)
         cmd()
         cmdreset()
