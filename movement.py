@@ -3,7 +3,6 @@ from CoDrone import Direction
 
 import sys, tty, termios
 
-
 drone = CoDrone.CoDrone()
 
 power = 20
